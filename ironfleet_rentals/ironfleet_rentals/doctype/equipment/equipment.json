@@ -1,0 +1,91 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "EQP-.YYYY.-.#####",
+ "creation": "2026-03-25 11:54:17.582091",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "equipment_catgory",
+  "status",
+  "condition",
+  "current_location",
+  "next_scheduled_maintenance_date",
+  "insurance_expired_date",
+  "registration_expired_date",
+  "default_daily_rental_rate"
+ ],
+ "fields": [
+  {
+   "fieldname": "equipment_catgory",
+   "fieldtype": "Link",
+   "label": "Equipment Catgory",
+   "options": "Equipment Category"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status ",
+   "options": "Available\nRented\nUnder Maintenance\nRetired"
+  },
+  {
+   "fieldname": "condition",
+   "fieldtype": "Select",
+   "label": "Condition",
+   "options": "Excellent\nGood\nFair / Poor"
+  },
+  {
+   "fieldname": "current_location",
+   "fieldtype": "Small Text",
+   "label": "Current Location "
+  },
+  {
+   "fieldname": "next_scheduled_maintenance_date",
+   "fieldtype": "Date",
+   "label": "Next Scheduled Maintenance Date"
+  },
+  {
+   "fieldname": "insurance_expired_date",
+   "fieldtype": "Date",
+   "label": "Insurance Expired Date "
+  },
+  {
+   "fieldname": "registration_expired_date",
+   "fieldtype": "Date",
+   "label": "Registration Expired Date "
+  },
+  {
+   "fieldname": "default_daily_rental_rate",
+   "fieldtype": "Currency",
+   "label": "Default Daily Rental Rate"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-25 13:27:45.938291",
+ "modified_by": "Administrator",
+ "module": "IronFleet_Rentals",
+ "name": "Equipment",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
