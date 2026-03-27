@@ -14,14 +14,14 @@ frappe.ui.form.on("Equipment", {
 		} else if (date_diff <= 7) {
 			frm.dashboard.add_indicator(`Manitenance scheduled Due in ${date_diff}`, "yellow");
 		}
-		ress_date_diff = frappe.datetime.get_day_diff(
+		const registration_date_diff = frappe.datetime.get_day_diff(
 			frm.doc.registration_expired_date,
 			todaydate
 		);
 
-		if (ress_date_diff <= 0) {
+		if (registration_date_diff <= 0) {
 			frm.dashboard.add_indicator(`Registration scheduled Expried`, "red");
-			console.log(ress_date_diff);
+			console.log(registration_date_diff);
 		}
 	},
 	setup: function (frm) {

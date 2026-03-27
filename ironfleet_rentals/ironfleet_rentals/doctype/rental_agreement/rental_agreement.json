@@ -1,0 +1,160 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-03-26 11:03:35.153711",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_dmii",
+  "amended_from",
+  "customer",
+  "items",
+  "start_date",
+  "expected_end_date",
+  "delivery_address",
+  "total_daily_rate",
+  "estimate_rental_days",
+  "estimated_total",
+  "discount_percentage",
+  "discount_amount",
+  "is_fully_paid",
+  "out_standing_amount",
+  "reason_to_reject",
+  "ops_head_approval",
+  "fnc_manager_approval",
+  "equipment_list"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_dmii",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Rental Agreement",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer ",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Rental Agreement Items"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date "
+  },
+  {
+   "fieldname": "expected_end_date",
+   "fieldtype": "Date",
+   "label": "Expected End Date"
+  },
+  {
+   "fieldname": "delivery_address",
+   "fieldtype": "Small Text",
+   "label": "Delivery Address"
+  },
+  {
+   "fieldname": "total_daily_rate",
+   "fieldtype": "Currency",
+   "label": "Total Daily Rate"
+  },
+  {
+   "fieldname": "estimate_rental_days",
+   "fieldtype": "Int",
+   "label": "Estimate Rental Days"
+  },
+  {
+   "fieldname": "estimated_total",
+   "fieldtype": "Currency",
+   "label": "Estimated Total"
+  },
+  {
+   "fieldname": "discount_percentage",
+   "fieldtype": "Percent",
+   "label": "Discount Percentage"
+  },
+  {
+   "fieldname": "discount_amount",
+   "fieldtype": "Currency",
+   "label": "Discount Amount "
+  },
+  {
+   "default": "0",
+   "fieldname": "is_fully_paid",
+   "fieldtype": "Check",
+   "label": "Is Fully Paid "
+  },
+  {
+   "fieldname": "out_standing_amount",
+   "fieldtype": "Currency",
+   "label": "Out Standing Amount "
+  },
+  {
+   "fieldname": "reason_to_reject",
+   "fieldtype": "Small Text",
+   "label": "Reason to Reject ",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "ops_head_approval",
+   "fieldtype": "Check",
+   "label": "Ops Head Approval "
+  },
+  {
+   "default": "0",
+   "fieldname": "fnc_manager_approval",
+   "fieldtype": "Check",
+   "label": "Fnc Manager Approval"
+  },
+  {
+   "fieldname": "equipment_list",
+   "fieldtype": "Table",
+   "label": "Equipment List ",
+   "options": "RA Equipments"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-03-26 13:32:12.310065",
+ "modified_by": "Administrator",
+ "module": "IronFleet_Rentals",
+ "name": "Rental Agreement",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
