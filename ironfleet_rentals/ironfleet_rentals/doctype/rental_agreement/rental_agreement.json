@@ -22,10 +22,10 @@
   "grand_total",
   "is_fully_paid",
   "out_standing_amount",
-  "reason_to_reject",
-  "ops_head_approval",
-  "fnc_manager_approval",
-  "equipment_list"
+  "equipment_list",
+  "status",
+  "current_approver",
+  "reason_to_reject"
  ],
  "fields": [
   {
@@ -136,33 +136,29 @@
    "read_only": 1
   },
   {
-   "default": "0",
-   "depends_on": "eval: doc.discount_percentage > 10",
-   "fieldname": "ops_head_approval",
-   "fieldtype": "Check",
-   "label": "Ops Head Approval ",
-   "mandatory_depends_on": "eval: doc.discount_percentage > 10"
-  },
-  {
-   "default": "0",
-   "depends_on": "eval: doc.grand_total > 100000",
-   "fieldname": "fnc_manager_approval",
-   "fieldtype": "Check",
-   "label": "Fnc Manager Approval",
-   "mandatory_depends_on": "eval: doc.grand_total > 100000"
-  },
-  {
    "fieldname": "equipment_list",
    "fieldtype": "Table",
    "label": "Equipment List ",
    "options": "RA Equipments"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nPending Ops\nPending Finance\nPending Finance Manager, Approved\nRejected"
+  },
+  {
+   "fieldname": "current_approver",
+   "fieldtype": "Link",
+   "label": "Current Approver",
+   "options": "User"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-03-27 15:53:38.370323",
+ "modified": "2026-03-27 17:43:21.662852",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Rental Agreement",
