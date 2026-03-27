@@ -13,7 +13,9 @@
   "next_scheduled_maintenance_date",
   "insurance_expired_date",
   "registration_expired_date",
-  "default_daily_rental_rate"
+  "default_daily_rental_rate",
+  "vendor",
+  "purchase_date"
  ],
  "fields": [
   {
@@ -32,7 +34,7 @@
    "fieldname": "condition",
    "fieldtype": "Select",
    "label": "Condition",
-   "options": "Excellent\nGood\nFair / Poor"
+   "options": "Excellent\nGood\nFair\nPoor"
   },
   {
    "fieldname": "current_location",
@@ -58,12 +60,23 @@
    "fieldname": "default_daily_rental_rate",
    "fieldtype": "Currency",
    "label": "Default Daily Rental Rate"
+  },
+  {
+   "fieldname": "vendor",
+   "fieldtype": "Link",
+   "label": "Vendor ",
+   "options": "Vendor"
+  },
+  {
+   "fieldname": "purchase_date",
+   "fieldtype": "Date",
+   "label": "Purchase Date"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-25 13:27:45.938291",
+ "modified": "2026-03-26 10:58:15.303455",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Equipment",
