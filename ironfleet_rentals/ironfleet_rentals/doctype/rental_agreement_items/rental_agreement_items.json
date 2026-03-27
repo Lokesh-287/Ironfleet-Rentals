@@ -8,7 +8,8 @@
  "field_order": [
   "equipment_categorys",
   "qty",
-  "daily_rate"
+  "daily_rate",
+  "total"
  ],
  "fields": [
   {
@@ -22,20 +23,28 @@
    "fieldname": "qty",
    "fieldtype": "Int",
    "in_list_view": 1,
-   "label": "Qty"
+   "label": "Qty",
+   "read_only_depends_on": "eval: !doc.equipment_categorys "
   },
   {
    "fieldname": "daily_rate",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Daily Rate"
+   "label": "Daily Rate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-03-26 16:22:40.386553",
+ "modified": "2026-03-27 12:15:47.638854",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Rental Agreement Items",
