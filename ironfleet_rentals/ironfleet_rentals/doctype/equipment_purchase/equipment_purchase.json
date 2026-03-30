@@ -44,6 +44,7 @@
    "in_list_view": 1,
    "label": "Equipment Category",
    "options": "Equipment Category",
+   "read_only_depends_on": "eval: !doc.vendor ",
    "reqd": 1
   },
   {
@@ -51,6 +52,7 @@
    "fieldtype": "Int",
    "in_list_view": 1,
    "label": "Quantity",
+   "read_only_depends_on": "eval: !doc.vendor ",
    "reqd": 1
   },
   {
@@ -58,33 +60,37 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Rate",
+   "read_only": 1,
    "reqd": 1
   },
   {
    "fieldname": "total_amount",
    "fieldtype": "Currency",
    "label": "Total Amount",
+   "read_only": 1,
    "reqd": 1
   },
   {
+   "default": "Today",
    "fieldname": "purchase_date",
    "fieldtype": "Date",
    "label": "Purchase Date",
-   "options": "Today",
+   "read_only_depends_on": "eval: !doc.vendor ",
    "reqd": 1
   },
   {
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "status",
-   "options": "Draft\nOrdered\nReceived"
+   "options": "Ordered\nReceived",
+   "read_only_depends_on": "eval: !doc.vendor "
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-03-30 00:28:37.992925",
+ "modified": "2026-03-30 12:25:12.933280",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Equipment Purchase",
