@@ -145,7 +145,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Draft\nPending Ops\nPending Finance\nPending Finance Manager, Approved\nRejected"
+   "options": "Draft\nPending Ops\nPending Finance\nPending Finance Manager\nApproved\nRejected"
   },
   {
    "fieldname": "current_approver",
