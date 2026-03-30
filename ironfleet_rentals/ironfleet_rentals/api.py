@@ -1,12 +1,19 @@
 import frappe
-
+from frappe.utils import flt
 @frappe.whitelist()
-def get_leaf_nodes_parent(doctype, txt, searchfield, start, page_len, filters):
-    parent_nodes=set(frappe.db.get_list("Equipment Category",{"is_group":0},pluck="parent_equipment_category"))
+def get_leaf_nodes(doctype, txt, searchfield, start, page_len, filters):
+    # parent_nodes=set(frappe.db.get_list("Equipment Category",{"is_group":0},pluck="parent_equipment_category"))
+    # l=[(p,p) for p in parent_nodes if p]
+    # if txt:
+    #     parent_nodes = [p for p in parent_nodes if txt.lower() in p.lower()]
+    # return [(p,p) for p in parent_nodes if p]
+
+    parent_nodes=set(frappe.db.get_list("Equipment Category",{"is_group":0},pluck="name"))
     l=[(p,p) for p in parent_nodes if p]
     if txt:
         parent_nodes = [p for p in parent_nodes if txt.lower() in p.lower()]
     return [(p,p) for p in parent_nodes if p]
+    
 #------------------------------------------------------------------------------------------------------------------
 @frappe.whitelist()
 def get_daily_rate(equipment_category):
@@ -45,3 +52,114 @@ def create_equipment_records(equipment_category, qty, vendor, purchase_date,defa
             "default_daily_rental_rate":default_rate
         }).insert()
     return "Created"
+#------------------------------------------------------------------------------------------------------------------
+@frappe.whitelist()
+def create_sourcing_request(rental_agreement, items):
+    if isinstance(items, str):
+        items = frappe.parse_json(items)
+    
+    # 1. Get available internal stock
+    available_stocks = frappe.db.sql("""
+         SELECT equipment_catgory, COUNT(name) AS available_qty
+         FROM `tabEquipment`
+         WHERE status = 'Available' AND `condition` != 'Damaged'
+         GROUP BY equipment_catgory
+    """, as_dict=1)
+
+    available_map = {}
+    for d in available_stocks:
+        available_map[d.equipment_catgory] = d.available_qty
+
+    # 2. Calculate shortages
+    sourcing_items = {}
+    for item in items:
+        cat = item.get("equipment_categorys")
+        req_qty = flt(item.get("qty"))
+        avail_qty = available_map.get(cat, 0)
+
+        if req_qty > avail_qty:
+            shortage = req_qty - avail_qty
+            if cat not in sourcing_items:
+                sourcing_items[cat] = shortage
+            else:
+                sourcing_items[cat] += shortage
+
+    if not sourcing_items:
+        return {"status": "none", "message": "All items are available in stock."}
+
+    # 3. Separate categories into "Has Vendor" and "Missing Vendor"
+    final_items_to_source = []
+    missing_vendor_categories = []
+
+    for cat, qty in sourcing_items.items():
+        # Search for best rated vendor
+        best_vendor = frappe.db.sql("""
+            SELECT v.name 
+            FROM `tabVendor` v
+            JOIN `tabEquipment Categorys` ec ON v.name = ec.parent
+            WHERE ec.equipment_category = %s 
+            AND v.vendor_type = 'Subcontractor'
+            ORDER BY v.performance_rating DESC
+            LIMIT 1
+        """, (cat), as_dict=1)
+
+        if best_vendor:
+            final_items_to_source.append({
+                "category": cat,
+                "qty": qty,
+                "vendor": best_vendor[0].name
+            })
+        else:
+            missing_vendor_categories.append(cat)
+
+    # 4. If there are missing vendors, STOP and ask user to create Vendor
+    if missing_vendor_categories:
+        return {
+            "status": "missing_vendor",
+            "categories": missing_vendor_categories,
+            "message": "No subcontractors found for some categories."
+        }
+
+    # 5. Otherwise, create the Sourcing Doc
+    sourcing_doc = frappe.get_doc({
+        "doctype": "Subcontract Sourcing",
+        "rental_agreement": rental_agreement,
+        "sourcing_date": frappe.utils.today(),
+        "status": "Draft",
+        "sourcing_items": []
+    })
+
+    for entry in final_items_to_source:
+        sourcing_doc.append("sourcing_items", {
+            "equipment_category": entry["category"],
+            "qty": entry["qty"],
+            "vendor": entry["vendor"]
+        })
+
+    sourcing_doc.insert()
+    return {"status": "success", "docname": sourcing_doc.name}
+
+#------------------------------------------------------------------------------------------------------------------
+
+@frappe.whitelist()
+def quick_create_vendor(categories):
+    # categories will come as a JSON list from JS
+    if isinstance(categories, str):
+        categories = frappe.parse_json(categories)
+
+    vendor_doc = frappe.get_doc({
+        "doctype": "Vendor",
+        "vendor_type": "Subcontractor",
+        "equipment_categories": []
+    })
+
+    for cat in categories:
+        vendor_doc.append("equipment_categories", {
+            "equipment_category": cat,
+            "availability_type":"Subcontract"
+        })
+
+    # This handles the Naming Series correctly on the server side
+    vendor_doc.insert()
+    
+    return vendor_doc.name

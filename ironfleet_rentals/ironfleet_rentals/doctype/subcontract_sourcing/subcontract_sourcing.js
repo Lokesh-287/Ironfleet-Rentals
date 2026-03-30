@@ -1,7 +1,7 @@
 // Copyright (c) 2026, IronFleet_Rentals and contributors
 // For license information, please see license.txt
 
-// frappe.ui.form.on("RA Equipments", {
+// frappe.ui.form.on("Subcontract Sourcing", {
 // 	refresh(frm) {
 
 // 	},
