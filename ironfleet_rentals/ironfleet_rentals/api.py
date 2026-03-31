@@ -100,6 +100,17 @@ def create_sourcing_request(rental_agreement, items):
     final_items_to_source = []
     missing_vendor_categories = []
 
+    # for cat, qty in sourcing_items.items():
+    #     best_vendor = frappe.db.sql("""
+    #         SELECT v.name 
+    #         FROM `tabVendor` v
+    #         JOIN `tabEquipment Categorys` ec ON v.name = ec.parent
+    #         WHERE ec.equipment_category = %s 
+    #         AND v.vendor_type = 'Subcontractor'
+    #         AND v.status = 'Active' 
+    #         ORDER BY v.performance_rating DESC
+    #         LIMIT 1
+    #     """, (cat), as_dict=1)
     for cat, qty in sourcing_items.items():
         best_vendor = frappe.db.sql("""
             SELECT v.name 
@@ -107,7 +118,6 @@ def create_sourcing_request(rental_agreement, items):
             JOIN `tabEquipment Categorys` ec ON v.name = ec.parent
             WHERE ec.equipment_category = %s 
             AND v.vendor_type = 'Subcontractor'
-            AND v.status = 'Active' 
             ORDER BY v.performance_rating DESC
             LIMIT 1
         """, (cat), as_dict=1)
@@ -171,3 +181,15 @@ def quick_create_vendor(categories):
     vendor_doc.insert()
     
     return vendor_doc.name
+
+#------------------------------------------------------------------------------------------------------------------
+@frappe.whitelist()
+def capture_rental_payment(rental_agreement,row_id,reference_no,payment_mode):
+    frappe.db.set_value("Rental Payment Schedule",row_id,{
+        "status":"Paid",
+        "payment_reference": f"{payment_mode}: {reference_no}"
+	})
+    doc = frappe.get_doc("Rental Agreement", rental_agreement)
+    doc.update_payment_status()
+    doc.db_update()
+    return doc.out_standing_amount

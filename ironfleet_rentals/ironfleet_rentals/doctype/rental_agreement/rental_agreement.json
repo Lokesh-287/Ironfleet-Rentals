@@ -25,7 +25,8 @@
   "equipment_list",
   "status",
   "current_approver",
-  "reason_to_reject"
+  "reason_to_reject",
+  "payment_schedule"
  ],
  "fields": [
   {
@@ -152,13 +153,19 @@
    "fieldtype": "Link",
    "label": "Current Approver",
    "options": "User"
+  },
+  {
+   "fieldname": "payment_schedule",
+   "fieldtype": "Table",
+   "label": "payment_schedule",
+   "options": "Rental Payment Schedule"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-03-27 17:43:21.662852",
+ "modified": "2026-03-31 00:08:05.456813",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Rental Agreement",

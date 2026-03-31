@@ -3,18 +3,66 @@
 
 frappe.ui.form.on("Rental Agreement", {
     refresh(frm) {
-        console.log("DEBUG: Form Refresh Triggered");
+        console.log(frm.doc.docstatus);
 
-        frm.trigger("load_security_deposit_percentage");
-        frm.trigger("recalculate_totals");
+        if (frm.doc.docstatus === 0) {
+            frm.trigger("load_security_deposit_percentage");
+            frm.trigger("recalculate_totals");
+        }
+
+        if (frm.doc.docstatus === 1 && frm.doc.out_standing_amount > 0) {
+            frm.add_custom_button(__('Record Payment'), function () {
+                let d = new frappe.ui.Dialog({
+                    title: __('Capture Payment'),
+                    fields: [
+                        {
+                            label: __('Select Installment'),
+                            fieldname: 'row_id',
+                            fieldtype: 'Select',
+                            options: frm.doc.payment_schedule
+                                .filter(row => row.status !== 'Paid')
+                                .map(row => ({ label: `${row.payment_term} (${format_currency(row.amount)})`, value: row.name })),
+                            reqd: 1
+                        },
+                        {
+                            label: __('Payment Mode'),
+                            fieldname: 'mode',
+                            fieldtype: 'Select',
+                            options: ["Cash", "UPI", "Bank Transfer", "Card", "Cheque"],
+                            reqd: 1
+                        },
+                        {
+                            label: __('Reference Number'),
+                            fieldname: 'ref',
+                            fieldtype: 'Data',
+                            reqd: 1
+                        }
+                    ],
+                    primary_action_label: __('Submit Payment'),
+                    primary_action(values) {
+                        frappe.call({
+                            method: "ironfleet_rentals.ironfleet_rentals.api.capture_rental_payment",
+                            args: {
+                                rental_agreement: frm.doc.name,
+                                row_id: values.row_id,
+                                reference_no: values.ref,
+                                payment_mode: values.mode
+                            },
+                            callback: function (r) {
+                                d.hide();
+                                frm.reload_doc();
+                                frappe.show_alert({ message: __('Payment Successful. Remaining: ') + format_currency(r.message), indicator: 'green' });
+                            }
+                        });
+                    }
+                });
+                d.show();
+            });
+        }
 
         // Only show button if Agreement is in Draft
         if (frm.doc.docstatus === 0) {
-            console.log("DEBUG: Adding Sourcing Button");
             frm.add_custom_button(("Create Sourcing Request"), function () {
-                
-                console.log("DEBUG: Sourcing Button Clicked");
-
                 frappe.call({
                     method: "ironfleet_rentals.ironfleet_rentals.api.create_sourcing_request",
                     args: {
@@ -24,7 +72,6 @@ frappe.ui.form.on("Rental Agreement", {
                     freeze: true,
                     freeze_message: ("Checking Stock & Vendors..."),
                     callback: function (r) {
-                        console.log("DEBUG: Server Response ->", r);
 
                         if (!r.message) return;
 
@@ -32,42 +79,41 @@ frappe.ui.form.on("Rental Agreement", {
 
                         // CASE 1: Missing Vendors - Redirect to New Vendor Form
                         if (res.status === "missing_vendor") {
-    frappe.confirm(
-        ("No Subcontractors found for: <b>{0}</b>. Create a new Vendor now?", [res.categories.join(", ")]),
-        function () {
-            console.log("DEBUG: Creating Vendor via Server...");
-            
-            frappe.call({
-                method: "ironfleet_rentals.ironfleet_rentals.api.quick_create_vendor",
-                args: {
-                    categories: res.categories
-                },
-                callback: function(r) {
-                    if (r.message) {
-                        frappe.show_alert({
-                            message: ("Vendor {0} created successfully", [r.message]),
-                            indicator: 'green'
-                        });
-                        
-                        // Route to the newly created Vendor so user can fill in phone/email
-                        frappe.set_route("Form", "Vendor", r.message);
-                    }
-                }
-                          });
-                      },
-                      function () {
-                          frappe.msgprint(("Sourcing terminated."));
-                      }
-                  );
-              }
+                            frappe.confirm(
+                                ("No Subcontractors found for: <b>{0}</b>. Create a new Vendor now?", [res.categories.join(", ")]),
+                                function () {
+                                    console.log("DEBUG: Creating Vendor via Server...");
+
+                                    frappe.call({
+                                        method: "ironfleet_rentals.ironfleet_rentals.api.quick_create_vendor",
+                                        args: {
+                                            categories: res.categories
+                                        },
+                                        callback: function (r) {
+                                            if (r.message) {
+                                                frappe.show_alert({
+                                                    message: ("Vendor {0} created successfully", [r.message]),
+                                                    indicator: 'green'
+                                                });
+
+                                                // Route to the newly created Vendor so user can fill in phone/email
+                                                frappe.set_route("Form", "Vendor", r.message);
+                                            }
+                                        }
+                                    });
+                                },
+                                function () {
+                                    frappe.msgprint(("Sourcing terminated."));
+                                }
+                            );
+                        }
                         // CASE 2: Success - Redirect to Sourcing Doc
                         else if (res.status === "success") {
                             frappe.show_alert({ message: ("Sourcing Created"), indicator: 'green' });
                             frappe.set_route("Form", "Subcontract Sourcing", res.docname);
-                        } 
+                        }
                         // CASE 3: No gaps found
                         else if (res.status === "none") {
-                            console.info("DEBUG: Status NONE ->", res.message);
                             frappe.msgprint(res.message);
                         }
                     }
@@ -98,6 +144,7 @@ frappe.ui.form.on("Rental Agreement", {
     },
 
     recalculate_totals(frm) {
+        if (frm.doc.docstatus > 0) return;
         let totalDailyRate = 0;
         (frm.doc.items || []).forEach((item) => {
             const qty = item.qty || 1;
