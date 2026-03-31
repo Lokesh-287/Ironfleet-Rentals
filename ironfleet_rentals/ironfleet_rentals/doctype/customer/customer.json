@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "CUS-.YYYY.-.#####",
  "creation": "2026-03-25 10:54:23.639057",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -78,10 +79,11 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-25 15:32:50.908055",
+ "modified": "2026-03-27 17:13:08.638930",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Customer",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {

@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "RA-.YYYY.-.#####",
  "creation": "2026-03-26 11:03:35.153711",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -17,12 +18,14 @@
   "estimated_total",
   "discount_percentage",
   "discount_amount",
+  "security_deposit",
+  "grand_total",
   "is_fully_paid",
   "out_standing_amount",
-  "reason_to_reject",
-  "ops_head_approval",
-  "fnc_manager_approval",
-  "equipment_list"
+  "equipment_list",
+  "status",
+  "current_approver",
+  "reason_to_reject"
  ],
  "fields": [
   {
@@ -42,24 +45,31 @@
   {
    "fieldname": "customer",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Customer ",
-   "options": "Customer"
+   "options": "Customer",
+   "reqd": 1
   },
   {
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Rental Agreement Items"
+   "options": "Rental Agreement Items",
+   "reqd": 1
   },
   {
    "fieldname": "start_date",
    "fieldtype": "Date",
-   "label": "Start Date "
+   "in_list_view": 1,
+   "label": "Start Date ",
+   "reqd": 1
   },
   {
    "fieldname": "expected_end_date",
    "fieldtype": "Date",
-   "label": "Expected End Date"
+   "in_list_view": 1,
+   "label": "Expected End Date",
+   "reqd": 1
   },
   {
    "fieldname": "delivery_address",
@@ -69,17 +79,20 @@
   {
    "fieldname": "total_daily_rate",
    "fieldtype": "Currency",
-   "label": "Total Daily Rate"
+   "label": "Total Daily Rate",
+   "read_only": 1
   },
   {
    "fieldname": "estimate_rental_days",
    "fieldtype": "Int",
-   "label": "Estimate Rental Days"
+   "label": "Estimate Rental Days",
+   "read_only": 1
   },
   {
    "fieldname": "estimated_total",
    "fieldtype": "Currency",
-   "label": "Estimated Total"
+   "label": "Estimated Total",
+   "read_only": 1
   },
   {
    "fieldname": "discount_percentage",
@@ -89,7 +102,20 @@
   {
    "fieldname": "discount_amount",
    "fieldtype": "Currency",
-   "label": "Discount Amount "
+   "label": "Discount Amount ",
+   "read_only": 1
+  },
+  {
+   "fieldname": "security_deposit",
+   "fieldtype": "Currency",
+   "label": "Security Deposit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "grand_total",
+   "fieldtype": "Currency",
+   "label": "Grand Total",
+   "read_only": 1
   },
   {
    "default": "0",
@@ -110,32 +136,33 @@
    "read_only": 1
   },
   {
-   "default": "0",
-   "fieldname": "ops_head_approval",
-   "fieldtype": "Check",
-   "label": "Ops Head Approval "
-  },
-  {
-   "default": "0",
-   "fieldname": "fnc_manager_approval",
-   "fieldtype": "Check",
-   "label": "Fnc Manager Approval"
-  },
-  {
    "fieldname": "equipment_list",
    "fieldtype": "Table",
    "label": "Equipment List ",
    "options": "RA Equipments"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nPending Ops\nPending Finance\nPending Finance Manager\nApproved\nRejected"
+  },
+  {
+   "fieldname": "current_approver",
+   "fieldtype": "Link",
+   "label": "Current Approver",
+   "options": "User"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-03-26 13:32:12.310065",
+ "modified": "2026-03-27 17:43:21.662852",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Rental Agreement",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {

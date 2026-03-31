@@ -5,6 +5,5 @@
 from frappe.model.document import Document
 
 
-class Customer(Document):
-	def validate(self):
-		pass
+class RentalPayment(Document):
+	pass
