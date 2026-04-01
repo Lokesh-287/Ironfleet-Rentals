@@ -17,7 +17,9 @@
   "costing_section",
   "total_parts_cost",
   "total_labor_cost",
-  "grand_total_cost"
+  "grand_total_cost",
+  "parts_used_section",
+  "parts_item"
  ],
  "fields": [
   {
@@ -53,7 +55,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Scheduled\nAssigned, In Progress, Completed\nVerified\nClosed"
+   "options": "Scheduled\nAssigned\nIn Progress\nCompleted\nVerified\nClosed"
   },
   {
    "default": "Today",
@@ -76,6 +78,7 @@
    "fieldname": "technician",
    "fieldtype": "Link",
    "label": "Technician",
+   "link_filters": "[[\"User\",\"role\",\"=\",\"Technician\"]]",
    "options": "User"
   },
   {
@@ -98,13 +101,24 @@
    "fieldname": "grand_total_cost",
    "fieldtype": "Currency",
    "label": "Grand Total Cost"
+  },
+  {
+   "fieldname": "parts_used_section",
+   "fieldtype": "Section Break",
+   "label": "Parts Used"
+  },
+  {
+   "fieldname": "parts_item",
+   "fieldtype": "Table",
+   "label": "Parts Item",
+   "options": "Maintenance Part Items"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-03-31 16:07:44.055255",
+ "modified": "2026-04-01 19:00:42.661528",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Maintenance Schedule",

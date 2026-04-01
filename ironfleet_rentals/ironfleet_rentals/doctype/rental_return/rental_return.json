@@ -10,7 +10,11 @@
   "rental_agreement",
   "return_date",
   "late_fees",
-  "rental_return_items"
+  "rental_return_items",
+  "balance",
+  "total_damage_charge",
+  "total_amount",
+  "is_fully_paid"
  ],
  "fields": [
   {
@@ -51,13 +55,34 @@
    "fieldtype": "Table",
    "label": "Rental Return Items",
    "options": "Rental Return Items"
+  },
+  {
+   "fieldname": "balance",
+   "fieldtype": "Currency",
+   "label": "Balance"
+  },
+  {
+   "fieldname": "total_damage_charge",
+   "fieldtype": "Currency",
+   "label": "Total Damage Charge"
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_fully_paid",
+   "fieldtype": "Check",
+   "label": "is_fully_paid"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-03-31 16:10:12.071587",
+ "modified": "2026-04-01 18:37:41.754401",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Rental Return",
