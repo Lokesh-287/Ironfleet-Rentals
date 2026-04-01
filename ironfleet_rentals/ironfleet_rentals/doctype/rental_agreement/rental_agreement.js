@@ -10,6 +10,23 @@ frappe.ui.form.on("Rental Agreement", {
             frm.trigger("recalculate_totals");
         }
 
+        if (frm.doc.docstatus === 1 && frm.doc.status !== "Completed") {
+            frm.add_custom_button('Create Return', function () {
+                frappe.call({
+                    method: "ironfleet_rentals.ironfleet_rentals.api.make_rental_return",
+                    args: {
+                        rental_agreement: frm.doc.name
+                    },
+                    callback: function (r) {
+                        if (r.message) {
+                            // Redirect to the newly created Return document
+                            frappe.set_route("Form", "Rental Return", r.message);
+                        }
+                    }
+                });
+            });
+        }
+
         if (frm.doc.docstatus === 1 && frm.doc.out_standing_amount > 0) {
             frm.add_custom_button(__('Record Payment'), function () {
                 let d = new frappe.ui.Dialog({

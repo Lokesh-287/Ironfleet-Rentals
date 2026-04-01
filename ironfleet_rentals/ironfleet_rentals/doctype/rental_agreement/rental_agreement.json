@@ -146,7 +146,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Draft\nPending Ops\nPending Finance\nPending Finance Manager\nApproved\nRejected"
+   "options": "Draft\nPending Ops\nPending Finance\nPending Finance Manager\nApproved\nRejected\nCompleted"
   },
   {
    "fieldname": "current_approver",
@@ -165,7 +165,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-03-31 00:08:05.456813",
+ "modified": "2026-04-01 00:14:05.796829",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Rental Agreement",

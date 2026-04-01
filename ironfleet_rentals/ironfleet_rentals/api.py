@@ -1,5 +1,6 @@
 import frappe
 from frappe.utils import flt
+
 @frappe.whitelist()
 def get_leaf_nodes(doctype, txt, searchfield, start, page_len, filters):
     # parent_nodes=set(frappe.db.get_list("Equipment Category",{"is_group":0},pluck="parent_equipment_category"))
@@ -193,3 +194,32 @@ def capture_rental_payment(rental_agreement,row_id,reference_no,payment_mode):
     doc.update_payment_status()
     doc.db_update()
     return doc.out_standing_amount
+
+#------------------------------------------------------------------------------------------------------------------
+@frappe.whitelist()
+def make_rental_return(rental_agreement):
+	
+	ra = frappe.get_doc("Rental Agreement", rental_agreement)
+	
+	
+	existing_return = frappe.db.exists("Rental Return", {"rental_agreement": rental_agreement, "docstatus": ["<", 2]})
+	if existing_return:
+		frappe.msgprint(f"A Return document already exists for this agreement: {existing_return}")
+		return existing_return
+
+	
+	return_doc = frappe.new_doc("Rental Return")
+	return_doc.rental_agreement = ra.name
+	return_doc.return_date = frappe.utils.today()
+	
+	
+	for eq in ra.equipment_list:
+		return_doc.append("rental_return_items", {
+			"equipment_id": eq.equipment_id,
+			"equipment_category": eq.equipment_category,
+			"condition": frappe.db.get_value("Equipment", eq.equipment_id, "condition") or "Good"
+		})
+	
+	
+	return_doc.insert()
+	return return_doc.name
