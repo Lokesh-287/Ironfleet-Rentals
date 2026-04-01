@@ -1,5 +1,6 @@
 import frappe
 from frappe.utils import flt
+
 @frappe.whitelist()
 def get_leaf_nodes(doctype, txt, searchfield, start, page_len, filters):
     # parent_nodes=set(frappe.db.get_list("Equipment Category",{"is_group":0},pluck="parent_equipment_category"))
@@ -58,17 +59,29 @@ def create_sourcing_request(rental_agreement, items):
     if isinstance(items, str):
         items = frappe.parse_json(items)
     
-    # 1. Get available internal stock
+    # NEW: Fetch Rental Agreement dates for validation
+    ra_dates = frappe.db.get_value("Rental Agreement", rental_agreement, 
+                                  ["start_date", "expected_end_date"], as_dict=True)
+    
+    if not ra_dates:
+        frappe.throw("Rental Agreement dates not found.")
+        
+    end_date = ra_dates.expected_end_date
+
+    # 1. Get available internal stock (Filtering out units with expiring dates)
+    # We only count stock that is 'Ready' for the WHOLE duration
     available_stocks = frappe.db.sql("""
          SELECT equipment_catgory, COUNT(name) AS available_qty
          FROM `tabEquipment`
-         WHERE status = 'Available' AND `condition` != 'Damaged'
+         WHERE status = 'Available' 
+         AND `condition` != 'Damaged'
+         AND (insurance_expired_date IS NULL OR insurance_expired_date > %s)
+         AND (registration_expired_date IS NULL OR registration_expired_date > %s)
+         AND (next_scheduled_maintenance_date IS NULL OR next_scheduled_maintenance_date > %s)
          GROUP BY equipment_catgory
-    """, as_dict=1)
+    """, (end_date, end_date, end_date), as_dict=1)
 
-    available_map = {}
-    for d in available_stocks:
-        available_map[d.equipment_catgory] = d.available_qty
+    available_map = {d.equipment_catgory: d.available_qty for d in available_stocks}
 
     # 2. Calculate shortages
     sourcing_items = {}
@@ -79,20 +92,27 @@ def create_sourcing_request(rental_agreement, items):
 
         if req_qty > avail_qty:
             shortage = req_qty - avail_qty
-            if cat not in sourcing_items:
-                sourcing_items[cat] = shortage
-            else:
-                sourcing_items[cat] += shortage
+            sourcing_items[cat] = sourcing_items.get(cat, 0) + shortage
 
     if not sourcing_items:
-        return {"status": "none", "message": "All items are available in stock."}
+        return {"status": "none", "message": "All items are available in stock and meet date requirements."}
 
-    # 3. Separate categories into "Has Vendor" and "Missing Vendor"
+    # 3. Search for Vendors
     final_items_to_source = []
     missing_vendor_categories = []
 
+    # for cat, qty in sourcing_items.items():
+    #     best_vendor = frappe.db.sql("""
+    #         SELECT v.name 
+    #         FROM `tabVendor` v
+    #         JOIN `tabEquipment Categorys` ec ON v.name = ec.parent
+    #         WHERE ec.equipment_category = %s 
+    #         AND v.vendor_type = 'Subcontractor'
+    #         AND v.status = 'Active' 
+    #         ORDER BY v.performance_rating DESC
+    #         LIMIT 1
+    #     """, (cat), as_dict=1)
     for cat, qty in sourcing_items.items():
-        # Search for best rated vendor
         best_vendor = frappe.db.sql("""
             SELECT v.name 
             FROM `tabVendor` v
@@ -112,7 +132,6 @@ def create_sourcing_request(rental_agreement, items):
         else:
             missing_vendor_categories.append(cat)
 
-    # 4. If there are missing vendors, STOP and ask user to create Vendor
     if missing_vendor_categories:
         return {
             "status": "missing_vendor",
@@ -120,7 +139,7 @@ def create_sourcing_request(rental_agreement, items):
             "message": "No subcontractors found for some categories."
         }
 
-    # 5. Otherwise, create the Sourcing Doc
+    # 5. Create the Sourcing Doc
     sourcing_doc = frappe.get_doc({
         "doctype": "Subcontract Sourcing",
         "rental_agreement": rental_agreement,
@@ -163,3 +182,44 @@ def quick_create_vendor(categories):
     vendor_doc.insert()
     
     return vendor_doc.name
+
+#------------------------------------------------------------------------------------------------------------------
+@frappe.whitelist()
+def capture_rental_payment(rental_agreement,row_id,reference_no,payment_mode):
+    frappe.db.set_value("Rental Payment Schedule",row_id,{
+        "status":"Paid",
+        "payment_reference": f"{payment_mode}: {reference_no}"
+	})
+    doc = frappe.get_doc("Rental Agreement", rental_agreement)
+    doc.update_payment_status()
+    doc.db_update()
+    return doc.out_standing_amount
+
+#------------------------------------------------------------------------------------------------------------------
+@frappe.whitelist()
+def make_rental_return(rental_agreement):
+	
+	ra = frappe.get_doc("Rental Agreement", rental_agreement)
+	
+	
+	existing_return = frappe.db.exists("Rental Return", {"rental_agreement": rental_agreement, "docstatus": ["<", 2]})
+	if existing_return:
+		frappe.msgprint(f"A Return document already exists for this agreement: {existing_return}")
+		return existing_return
+
+	
+	return_doc = frappe.new_doc("Rental Return")
+	return_doc.rental_agreement = ra.name
+	return_doc.return_date = frappe.utils.today()
+	
+	
+	for eq in ra.equipment_list:
+		return_doc.append("rental_return_items", {
+			"equipment_id": eq.equipment_id,
+			"equipment_category": eq.equipment_category,
+			"condition": frappe.db.get_value("Equipment", eq.equipment_id, "condition") or "Good"
+		})
+	
+	
+	return_doc.insert()
+	return return_doc.name
