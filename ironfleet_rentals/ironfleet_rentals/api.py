@@ -244,3 +244,27 @@ def make_final_payment(rental_agreement,rental_return,payment_mode):
 	r_return.save(ignore_permissions=True)
 	return 0
 
+#-----------------------------------------------------------------------------------------------------------------------
+
+@frappe.whitelist()
+def create_insurance_claim_from_assessment(assessment_name):
+    assessment = frappe.get_doc("Damage Assessment", assessment_name)
+    
+    existing = frappe.db.exists("Insurance Claim", {"damage_assessment": assessment_name})
+    if existing:
+        return {"status": "exists", "docname": existing}
+
+   
+    policy_no = frappe.db.get_value("Equipment", assessment.equipment, "insurance_policy_no")
+
+    claim = frappe.get_doc({
+        "doctype": "Insurance Claim",
+        "damage_assessment": assessment.name,
+        "equipment": assessment.equipment,
+        "insurance_policy": policy_no or "No Policy Found",
+        "estimated_amount": assessment.estimated_repair_cost,
+        "status": "Filed"
+    })
+    
+    claim.insert(ignore_permissions=True)
+    return {"status": "success", "docname": claim.name}

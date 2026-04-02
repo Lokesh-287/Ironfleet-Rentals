@@ -89,6 +89,7 @@
    "label": "Costing"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "total_parts_cost",
    "fieldtype": "Currency",
    "label": "Total Parts Cost",
@@ -120,7 +121,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-04-02 11:09:46.928960",
+ "modified": "2026-04-02 12:23:14.029981",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Maintenance Schedule",

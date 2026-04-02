@@ -18,7 +18,7 @@ class RentalReturn(Document):
                 total+=item.damage_charge
         if total:
             self.total_damage_charge=total
-            self.total_amount+=self.total_damage_charge
+            self.total_amount=self.total_damage_charge + self.balance
 
 
     def calculate_late_fees(self):
@@ -50,6 +50,7 @@ class RentalReturn(Document):
                     "condition": "Damaged" 
                 })
                 self.create_maintenance_entry(item)
+                self.create_damage_assessment(item)
             else:
                 frappe.db.set_value("Equipment", item.equipment_id, {
                     "status": "Available",
@@ -69,3 +70,15 @@ class RentalReturn(Document):
             "description": f"Damaged during rental {self.rental_agreement}. Notes: {item.damage_description}"
         })
         maint.insert(ignore_permissions=True)
+
+    def create_damage_assessment(self, item):
+        assessment = frappe.get_doc({
+            "doctype": "Damage Assessment",
+            "equipment": item.equipment_id,
+            "rental_return": self.name,
+            "severity": item.severity,
+            "estimated_repair_cost": flt(item.damage_charge),
+            "is_covered_by_insurance": item.insurance_covered,
+            "notes": item.damage_description,
+        })
+        assessment.insert(ignore_permissions=True)

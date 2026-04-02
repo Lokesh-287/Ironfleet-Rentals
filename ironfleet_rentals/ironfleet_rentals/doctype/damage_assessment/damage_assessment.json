@@ -1,0 +1,102 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-04-02 12:47:46.746925",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_orwh",
+  "amended_from",
+  "equipment",
+  "rental_return",
+  "severity",
+  "estimated_repair_cost",
+  "is_covered_by_insurance",
+  "photos",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_orwh",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Damage Assessment",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "equipment",
+   "fieldtype": "Link",
+   "label": "Equipment",
+   "options": "Equipment"
+  },
+  {
+   "fieldname": "rental_return",
+   "fieldtype": "Link",
+   "label": "Rental Return",
+   "options": "Rental Return"
+  },
+  {
+   "fieldname": "severity",
+   "fieldtype": "Select",
+   "label": "Severity",
+   "options": "Minor\nModerate\nMajor\nCritical"
+  },
+  {
+   "fieldname": "estimated_repair_cost",
+   "fieldtype": "Currency",
+   "label": "Estimated Repair Cost"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_covered_by_insurance",
+   "fieldtype": "Check",
+   "label": "Is Covered by Insurance"
+  },
+  {
+   "fieldname": "photos",
+   "fieldtype": "Attach Image",
+   "label": "Photos"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-04-02 12:50:38.704931",
+ "modified_by": "Administrator",
+ "module": "IronFleet_Rentals",
+ "name": "Damage Assessment",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

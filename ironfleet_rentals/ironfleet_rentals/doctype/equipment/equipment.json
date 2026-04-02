@@ -15,7 +15,8 @@
   "registration_expired_date",
   "default_daily_rental_rate",
   "vendor",
-  "purchase_date"
+  "purchase_date",
+  "insurance_policy_no"
  ],
  "fields": [
   {
@@ -71,12 +72,17 @@
    "fieldname": "purchase_date",
    "fieldtype": "Date",
    "label": "Purchase Date"
+  },
+  {
+   "fieldname": "insurance_policy_no",
+   "fieldtype": "Data",
+   "label": "Insurance Policy No"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-26 10:58:15.303455",
+ "modified": "2026-04-02 16:38:13.674752",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Equipment",
