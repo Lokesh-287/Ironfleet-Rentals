@@ -52,10 +52,12 @@
    "options": "Preventive\nCorrective\nRecall"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Scheduled\nAssigned\nIn Progress\nCompleted\nVerified\nClosed"
+   "options": "Scheduled\nAssigned\nIn Progress\nCompleted\nVerified\nClosed",
+   "read_only": 1
   },
   {
    "default": "Today",
@@ -118,7 +120,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-04-01 19:00:42.661528",
+ "modified": "2026-04-02 11:09:46.928960",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Maintenance Schedule",
