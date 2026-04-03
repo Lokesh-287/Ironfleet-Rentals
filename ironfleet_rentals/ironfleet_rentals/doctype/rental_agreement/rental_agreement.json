@@ -26,7 +26,8 @@
   "status",
   "current_approver",
   "reason_to_reject",
-  "payment_schedule"
+  "payment_schedule",
+  "service_interruption"
  ],
  "fields": [
   {
@@ -163,13 +164,19 @@
    "fieldtype": "Table",
    "label": "payment_schedule",
    "options": "Rental Payment Schedule"
+  },
+  {
+   "default": "0",
+   "fieldname": "service_interruption",
+   "fieldtype": "Check",
+   "label": "Service Interruption"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-04-01 18:46:58.541713",
+ "modified": "2026-04-02 19:00:11.531681",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Rental Agreement",

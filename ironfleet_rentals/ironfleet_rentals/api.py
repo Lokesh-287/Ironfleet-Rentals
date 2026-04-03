@@ -1,5 +1,6 @@
 import frappe
 from frappe.utils import flt
+from frappe.utils import nowdate
 
 @frappe.whitelist()
 def get_leaf_nodes(doctype, txt, searchfield, start, page_len, filters):
@@ -268,3 +269,83 @@ def create_insurance_claim_from_assessment(assessment_name):
     
     claim.insert(ignore_permissions=True)
     return {"status": "success", "docname": claim.name}
+
+#----------------------------------------------------------------------------------------------------------
+
+@frappe.whitelist()
+def trigger_bulk_recall(category):
+    # 1. Find all active units in this category
+    equipment_list = frappe.get_all("Equipment", 
+        filters={"equipment_catgory": category, "status": ["!=", "Retired"]},
+        fields=["name", "status"])
+
+    if not equipment_list:
+        frappe.throw(f"No active equipment found in category: {category}")
+
+    processed = 0
+    rented_notified = 0
+
+    for eq in equipment_list:
+        # Create 'Recall' Maintenance Schedule
+        maint = frappe.get_doc({
+            "doctype": "Maintenance Schedule",
+            "equipment": eq.name,
+            "maintenance_type": "Recall",
+            "status": "Scheduled",
+            "scheduled_date": nowdate(),
+            "description": f"Bulk Recall for Category: {category}"
+        })
+        maint.insert(ignore_permissions=True)
+        processed += 1
+
+        # 2. Logic for Rented vs Available
+        if eq.status == "Rented":
+            # Fetch customer details and send email
+            if send_recall_email(eq.name):
+                rented_notified += 1
+        else:
+            # If it's available, move it to maintenance immediately
+            frappe.db.set_value("Equipment", eq.name, "status", "Under Maintenance")
+
+    return {
+        "total": len(equipment_list),
+        "processed": processed,
+        "rented": rented_notified
+    }
+
+def send_recall_email(equipment_id):
+    """Finds the customer for the rented equipment using the correct child table field."""
+    
+    # 1. Search in 'RA Equipments' using 'equipment_id' (Adjusted fieldname)
+    agreement_data = frappe.db.get_value("RA Equipments", 
+        {"equipment_id": equipment_id, "docstatus": 1}, 
+        ["parent"], as_dict=True)
+
+    # If it still returns None, check if the field is named 'equipment_list' or similar
+    if not agreement_data:
+        # Fallback debug to see what fields actually exist if this fails
+        # frappe.log_error(f"Could not find RA for {equipment_id}", "Recall Error")
+        return False
+
+    # 2. Get the Customer and their Email from the Parent Rental Agreement
+    customer_info = frappe.db.get_value("Rental Agreement", agreement_data.parent, 
+        ["customer"], as_dict=True)
+
+    if not customer_info:
+        return False
+
+    # 3. Get Customer's email address
+    customer_email = frappe.db.get_value("Customer", customer_info.customer, "email_id")
+
+    if customer_email:
+        # 4. Send the Email
+        frappe.sendmail(
+            recipients=[customer_email],
+            subject=f"URGENT: Safety Recall for Equipment {equipment_id}",
+            content=f"Dear Customer, we are issuing a safety recall for {equipment_id} on Agreement {agreement_data.parent}. Please stop use immediately.",
+            delayed=False
+        )
+        frappe.msgprint(f"Urgent Recall Email sent to {customer_email}")
+        return True
+    
+    return False

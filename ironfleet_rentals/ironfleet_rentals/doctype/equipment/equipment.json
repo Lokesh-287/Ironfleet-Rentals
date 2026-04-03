@@ -16,7 +16,10 @@
   "default_daily_rental_rate",
   "vendor",
   "purchase_date",
-  "insurance_policy_no"
+  "insurance_policy_no",
+  "retirement_summary",
+  "total_revenue",
+  "total_maintenance_cost"
  ],
  "fields": [
   {
@@ -77,12 +80,30 @@
    "fieldname": "insurance_policy_no",
    "fieldtype": "Data",
    "label": "Insurance Policy No"
+  },
+  {
+   "fieldname": "retirement_summary",
+   "fieldtype": "Small Text",
+   "label": "Retirement Summary",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_revenue",
+   "fieldtype": "Currency",
+   "label": "Total Revenue",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_maintenance_cost",
+   "fieldtype": "Currency",
+   "label": "Total Maintenance Cost",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-02 16:38:13.674752",
+ "modified": "2026-04-02 18:58:27.750303",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Equipment",

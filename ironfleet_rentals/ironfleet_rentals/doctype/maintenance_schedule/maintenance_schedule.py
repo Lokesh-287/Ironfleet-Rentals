@@ -16,6 +16,15 @@ class MaintenanceSchedule(Document):
     def on_update_after_submit(self):
         if self.status == "Verified":
             self.complete_maintenance_cycle()
+    
+    def on_submit(self):
+        if self.maintenance_type == "Emergency":
+            agreement = frappe.db.get_value("Rental Agreement Item", 
+            {"equipment_id": self.equipment, "docstatus": 1}, "parent")
+        
+            if agreement:
+                frappe.db.set_value("Rental Agreement", agreement, "service_interruption", 1)
+                frappe.msgprint("Emergency Breakdown: Billing paused for Agreement " + agreement)
 
     def complete_maintenance_cycle(self):
         if not self.equipment:

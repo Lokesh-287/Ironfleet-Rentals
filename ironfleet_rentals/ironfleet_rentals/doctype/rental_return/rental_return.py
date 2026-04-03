@@ -5,11 +5,24 @@ from frappe.utils import date_diff, flt, getdate
 class RentalReturn(Document):
     def validate(self):
         self.calculate_late_fees()
+        self.calculate_billing()
         self.update_total_amount()
 
 
     def on_submit(self):
         self.process_returns()
+
+    def calculate_billing(self):        
+        is_interrupted = frappe.db.get_value("Rental Agreement", self.rental_agreement, "service_interruption")        
+        ra = frappe.get_doc("Rental Agreement", self.rental_agreement)
+        total_days = date_diff(self.return_date, ra.from_date)
+        if is_interrupted:
+            total_days = max(0, total_days - 1)
+            frappe.msgprint(f"Service Interruption detected on Agreement.")
+        daily_rate_sum = 0
+        for item in ra.rental_agreement_items:
+            daily_rate_sum += flt(item.daily_rate)
+        self.balance = total_days * daily_rate_sum
     
     def update_total_amount(self):
         total=0

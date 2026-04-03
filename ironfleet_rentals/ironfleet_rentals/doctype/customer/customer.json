@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "phone_number",
+  "email_id",
   "customer_type",
   "contact_person",
   "gstin",
@@ -74,12 +75,18 @@
    "fieldname": "is_blacklisted",
    "fieldtype": "Check",
    "label": "Is Blacklisted"
+  },
+  {
+   "fieldname": "email_id",
+   "fieldtype": "Data",
+   "label": "email_id",
+   "options": "Email"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-27 17:13:08.638930",
+ "modified": "2026-04-03 11:47:03.796182",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Customer",
