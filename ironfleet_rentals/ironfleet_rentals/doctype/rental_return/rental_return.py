@@ -5,9 +5,21 @@ from frappe.utils import date_diff, flt, getdate
 class RentalReturn(Document):
     def validate(self):
         self.calculate_late_fees()
+        self.update_total_amount()
+
 
     def on_submit(self):
         self.process_returns()
+    
+    def update_total_amount(self):
+        total=0
+        for item in self.rental_return_items:
+            if item.condition == "Damaged":
+                total+=item.damage_charge
+        if total:
+            self.total_damage_charge=total
+            self.total_amount+=self.total_damage_charge
+
 
     def calculate_late_fees(self):
         ra = frappe.get_doc("Rental Agreement", self.rental_agreement)

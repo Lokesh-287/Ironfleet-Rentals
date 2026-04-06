@@ -119,15 +119,19 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "default": "0",
    "fieldname": "is_fully_paid",
    "fieldtype": "Check",
-   "label": "Is Fully Paid "
+   "label": "Is Fully Paid ",
+   "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "out_standing_amount",
    "fieldtype": "Currency",
-   "label": "Out Standing Amount "
+   "label": "Out Standing Amount ",
+   "read_only": 1
   },
   {
    "fieldname": "reason_to_reject",
@@ -165,7 +169,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-04-01 00:14:05.796829",
+ "modified": "2026-04-01 18:46:58.541713",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Rental Agreement",
