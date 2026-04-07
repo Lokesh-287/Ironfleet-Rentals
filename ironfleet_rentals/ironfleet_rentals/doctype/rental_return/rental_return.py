@@ -57,6 +57,7 @@ class RentalReturn(Document):
             if not item.equipment_id: continue
             
             # Logic: If Damaged -> Under Maintenance, Else -> Available
+            
             if item.condition == "Damaged":
                 frappe.db.set_value("Equipment", item.equipment_id, {
                     "status": "Under Maintenance",
