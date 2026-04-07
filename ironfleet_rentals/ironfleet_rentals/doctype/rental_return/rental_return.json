@@ -14,7 +14,8 @@
   "balance",
   "total_damage_charge",
   "total_amount",
-  "is_fully_paid"
+  "is_fully_paid",
+  "total_days"
  ],
  "fields": [
   {
@@ -76,13 +77,18 @@
    "fieldname": "is_fully_paid",
    "fieldtype": "Check",
    "label": "is_fully_paid"
+  },
+  {
+   "fieldname": "total_days",
+   "fieldtype": "Int",
+   "label": "Total Days"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-04-01 18:37:41.754401",
+ "modified": "2026-04-02 19:19:38.405368",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Rental Return",

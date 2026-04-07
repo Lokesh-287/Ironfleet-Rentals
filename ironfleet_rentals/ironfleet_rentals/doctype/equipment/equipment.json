@@ -15,7 +15,11 @@
   "registration_expired_date",
   "default_daily_rental_rate",
   "vendor",
-  "purchase_date"
+  "purchase_date",
+  "insurance_policy_no",
+  "retirement_summary",
+  "total_revenue",
+  "total_maintenance_cost"
  ],
  "fields": [
   {
@@ -28,7 +32,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status ",
-   "options": "Available\nRented\nUnder Maintenance\nRetired"
+   "options": "\nAvailable\nRented\nUnder Maintenance\nRetired"
   },
   {
    "fieldname": "condition",
@@ -71,12 +75,35 @@
    "fieldname": "purchase_date",
    "fieldtype": "Date",
    "label": "Purchase Date"
+  },
+  {
+   "fieldname": "insurance_policy_no",
+   "fieldtype": "Data",
+   "label": "Insurance Policy No"
+  },
+  {
+   "fieldname": "retirement_summary",
+   "fieldtype": "Small Text",
+   "label": "Retirement Summary",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_revenue",
+   "fieldtype": "Currency",
+   "label": "Total Revenue",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_maintenance_cost",
+   "fieldtype": "Currency",
+   "label": "Total Maintenance Cost",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-26 10:58:15.303455",
+ "modified": "2026-04-06 10:36:58.507147",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Equipment",

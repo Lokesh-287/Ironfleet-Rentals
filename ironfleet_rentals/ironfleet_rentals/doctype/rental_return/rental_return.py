@@ -5,11 +5,24 @@ from frappe.utils import date_diff, flt, getdate
 class RentalReturn(Document):
     def validate(self):
         self.calculate_late_fees()
+        self.calculate_billing()
         self.update_total_amount()
 
 
     def on_submit(self):
         self.process_returns()
+
+    def calculate_billing(self):        
+        is_interrupted = frappe.db.get_value("Rental Agreement", self.rental_agreement, "service_interruption")        
+        ra = frappe.get_doc("Rental Agreement", self.rental_agreement)
+        total_days = date_diff(self.return_date, ra.from_date)
+        if is_interrupted:
+            total_days = max(0, total_days - 1)
+            frappe.msgprint(f"Service Interruption detected on Agreement.")
+        daily_rate_sum = 0
+        for item in ra.rental_agreement_items:
+            daily_rate_sum += flt(item.daily_rate)
+        self.balance = total_days * daily_rate_sum
     
     def update_total_amount(self):
         total=0
@@ -18,7 +31,7 @@ class RentalReturn(Document):
                 total+=item.damage_charge
         if total:
             self.total_damage_charge=total
-            self.total_amount+=self.total_damage_charge
+            self.total_amount=self.total_damage_charge + self.balance
 
 
     def calculate_late_fees(self):
@@ -44,12 +57,14 @@ class RentalReturn(Document):
             if not item.equipment_id: continue
             
             # Logic: If Damaged -> Under Maintenance, Else -> Available
+            
             if item.condition == "Damaged":
                 frappe.db.set_value("Equipment", item.equipment_id, {
                     "status": "Under Maintenance",
                     "condition": "Damaged" 
                 })
                 self.create_maintenance_entry(item)
+                self.create_damage_assessment(item)
             else:
                 frappe.db.set_value("Equipment", item.equipment_id, {
                     "status": "Available",
@@ -69,3 +84,15 @@ class RentalReturn(Document):
             "description": f"Damaged during rental {self.rental_agreement}. Notes: {item.damage_description}"
         })
         maint.insert(ignore_permissions=True)
+
+    def create_damage_assessment(self, item):
+        assessment = frappe.get_doc({
+            "doctype": "Damage Assessment",
+            "equipment": item.equipment_id,
+            "rental_return": self.name,
+            "severity": item.severity,
+            "estimated_repair_cost": flt(item.damage_charge),
+            "is_covered_by_insurance": item.insurance_covered,
+            "notes": item.damage_description,
+        })
+        assessment.insert(ignore_permissions=True)

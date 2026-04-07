@@ -2,9 +2,10 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Rental Return", {
+
     refresh(frm) {
         if (frm.doc.total_amount && frm.doc.is_fully_paid != 1) {
-            ~frm.add_custom_button("Make Final Payment", () => {
+            frm.add_custom_button("Make Final Payment", () => {
                 let d = new frappe.ui.Dialog({
                     title: "Capture Payment",
                     fields: [
@@ -44,4 +45,19 @@ frappe.ui.form.on("Rental Return", {
             })
         }
     },
+});
+
+frappe.ui.form.on("Rental Return Items", {
+    damage_charge: function (frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+
+        if (flt(row.damage_charge) > 50000) {
+            frappe.model.set_value(cdt, cdn, "severity", "Critical");
+            frappe.model.set_value(cdt, cdn, "is_covered_by_insurance", 1);
+        } else if (flt(row.damage_charge) > 20000) {
+            frappe.model.set_value(cdt, cdn, "severity", "Major");
+        } else {
+            frappe.model.set_value(cdt, cdn, "severity", "Moderate");
+        }
+    }
 });

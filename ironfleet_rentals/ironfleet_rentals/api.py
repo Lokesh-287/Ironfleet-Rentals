@@ -1,5 +1,6 @@
 import frappe
 from frappe.utils import flt
+from frappe.utils import nowdate
 
 @frappe.whitelist()
 def get_leaf_nodes(doctype, txt, searchfield, start, page_len, filters):
@@ -100,18 +101,6 @@ def create_sourcing_request(rental_agreement, items):
 	# 3. Search for Vendors
 	final_items_to_source = []
 	missing_vendor_categories = []
-
-	# for cat, qty in sourcing_items.items():
-	#     best_vendor = frappe.db.sql("""
-	#         SELECT v.name 
-	#         FROM `tabVendor` v
-	#         JOIN `tabEquipment Categorys` ec ON v.name = ec.parent
-	#         WHERE ec.equipment_category = %s 
-	#         AND v.vendor_type = 'Subcontractor'
-	#         AND v.status = 'Active' 
-	#         ORDER BY v.performance_rating DESC
-	#         LIMIT 1
-	#     """, (cat), as_dict=1)
 	for cat, qty in sourcing_items.items():
 		best_vendor = frappe.db.sql("""
 			SELECT v.name 
@@ -178,7 +167,6 @@ def quick_create_vendor(categories):
 			"availability_type":"Subcontract"
 		})
 
-	# This handles the Naming Series correctly on the server side
 	vendor_doc.insert()
 	
 	return vendor_doc.name
@@ -244,3 +232,97 @@ def make_final_payment(rental_agreement,rental_return,payment_mode):
 	r_return.save(ignore_permissions=True)
 	return 0
 
+#-----------------------------------------------------------------------------------------------------------------------
+
+@frappe.whitelist()
+def create_insurance_claim_from_assessment(assessment_name):
+    assessment = frappe.get_doc("Damage Assessment", assessment_name)
+    
+    existing = frappe.db.exists("Insurance Claim", {"damage_assessment": assessment_name})
+    if existing:
+        return {"status": "exists", "docname": existing}
+
+   
+    policy_no = frappe.db.get_value("Equipment", assessment.equipment, "insurance_policy_no")
+
+    claim = frappe.get_doc({
+        "doctype": "Insurance Claim",
+        "damage_assessment": assessment.name,
+        "equipment": assessment.equipment,
+        "insurance_policy": policy_no or "No Policy Found",
+        "estimated_amount": assessment.estimated_repair_cost,
+        "status": "Filed"
+    })
+    
+    claim.insert(ignore_permissions=True)
+    return {"status": "success", "docname": claim.name}
+
+#----------------------------------------------------------------------------------------------------------
+
+@frappe.whitelist()
+def trigger_bulk_recall(category):
+    equipment_list = frappe.get_all("Equipment", 
+        filters={"equipment_catgory": category, "status": ["!=", "Retired"]},
+        fields=["name", "status"])
+
+    if not equipment_list:
+        frappe.throw(f"No active equipment found in category: {category}")
+
+    processed = 0
+    rented_notified = 0
+
+    for eq in equipment_list:
+        # Create  Maintenance Schedule for recall 
+        maint = frappe.get_doc({ 
+            "doctype": "Maintenance Schedule",
+            "equipment": eq.name,
+            "maintenance_type": "Recall",
+            "status": "Scheduled",
+            "scheduled_date": nowdate(),
+            "description": f"Bulk Recall for Category: {category}"
+        })
+        maint.insert(ignore_permissions=True)
+        processed += 1
+		# if rented sending mail 
+        if eq.status == "Rented":
+            # Fetch customer details and sending email
+            if send_recall_email(eq.name):
+                rented_notified += 1
+        else:
+            # If it's available move it to maintenance 
+            frappe.db.set_value("Equipment", eq.name, "status", "Under Maintenance")
+
+    return {
+        "total": len(equipment_list),
+        "processed": processed,
+        "rented": rented_notified
+    }
+
+def send_recall_email(equipment_id):
+    
+    agreement_data = frappe.db.get_value("RA Equipments", 
+        {"equipment_id": equipment_id, "docstatus": 1}, 
+        ["parent"], as_dict=True)
+
+    if not agreement_data:
+        return False
+
+    customer_info = frappe.db.get_value("Rental Agreement", agreement_data.parent, 
+        ["customer"], as_dict=True)
+
+    if not customer_info:
+        return False
+
+    customer_email = frappe.db.get_value("Customer", customer_info.customer, "email_id")
+
+    if customer_email:
+        frappe.sendmail(
+            recipients=[customer_email],
+            subject=f"URGENT: Safety Recall for Equipment {equipment_id}",
+            content=f"Dear Customer, we are issuing a safety recall for {equipment_id} on Agreement {agreement_data.parent}. Please stop use immediately.",
+            delayed=False
+        )
+        frappe.msgprint(f"Urgent Recall Email sent to {customer_email}")
+        return True
+    
+    return False

@@ -14,6 +14,36 @@ scheduler_events = {
         "ironfleet_rentals.tasks.check_maintenance_schedules"
     ]
 }
+
+fixtures = [
+    {
+        "dt": "Workflow",
+        "filters": [["name", "=", "Rental Agreement Workflow"]]
+    },
+    {
+        "dt": "Workflow State",
+        "filters": [["name", "in", [
+            "Draft", 
+            "Pending Ops", 
+            "Pending Finance", 
+            "Pending Finance Manager", 
+            "Approved", 
+            "Rejected"
+        ]]]
+    }
+]
+
+after_install = "ironfleet_rentals.setup.install.after_install"
+after_migrate = "ironfleet_rentals.setup.migrate.after_migrate"
+
+
+override_doctype_class = {
+    "Customer": "ironfleet_rentals.overrides.customer.IronFleetCustomer"
+}
+
+doctype_js = {
+    "Customer": "public/js/customer_custom.js"
+}
 # required_apps = []
 
 # Each item in the list will be shown as an app in the apps page
