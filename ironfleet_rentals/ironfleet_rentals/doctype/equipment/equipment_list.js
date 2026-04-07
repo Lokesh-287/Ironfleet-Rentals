@@ -1,7 +1,6 @@
 frappe.listview_settings['Equipment'] = {
     refresh: function (listview) {
-        // Use listview.page.add_inner_button to add a button to the top bar
-        listview.page.add_inner_button(__('Process Bulk Recall'), () => {
+        listview.page.add_inner_button('Process Bulk Recall', () => {
             frappe.prompt([
                 {
                     label: 'Select Category to Recall',
@@ -18,7 +17,7 @@ frappe.listview_settings['Equipment'] = {
                         if (r.message) {
                             let m = r.message;
                             frappe.msgprint({
-                                title: __('Recall Summary'),
+                                title: 'Recall Summary',
                                 indicator: 'green',
                                 message: `<b>Total:</b> ${m.total}<br><b>Processed:</b> ${m.processed}<br><b>Notices Sent:</b> ${m.rented}`
                             });
@@ -26,7 +25,7 @@ frappe.listview_settings['Equipment'] = {
                         }
                     }
                 });
-            }, __('Initiate Manufacturer Recall'), __('Start Process'));
-        }, __('Actions')); // This puts it under the "Actions" dropdown menu
+            }, ('Initiate Manufacturer Recall'), ('Start Process'));
+        }, 'Actions');
     }
 };

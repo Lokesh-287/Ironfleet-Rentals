@@ -101,18 +101,6 @@ def create_sourcing_request(rental_agreement, items):
 	# 3. Search for Vendors
 	final_items_to_source = []
 	missing_vendor_categories = []
-
-	# for cat, qty in sourcing_items.items():
-	#     best_vendor = frappe.db.sql("""
-	#         SELECT v.name 
-	#         FROM `tabVendor` v
-	#         JOIN `tabEquipment Categorys` ec ON v.name = ec.parent
-	#         WHERE ec.equipment_category = %s 
-	#         AND v.vendor_type = 'Subcontractor'
-	#         AND v.status = 'Active' 
-	#         ORDER BY v.performance_rating DESC
-	#         LIMIT 1
-	#     """, (cat), as_dict=1)
 	for cat, qty in sourcing_items.items():
 		best_vendor = frappe.db.sql("""
 			SELECT v.name 
@@ -179,7 +167,6 @@ def quick_create_vendor(categories):
 			"availability_type":"Subcontract"
 		})
 
-	# This handles the Naming Series correctly on the server side
 	vendor_doc.insert()
 	
 	return vendor_doc.name
@@ -274,7 +261,6 @@ def create_insurance_claim_from_assessment(assessment_name):
 
 @frappe.whitelist()
 def trigger_bulk_recall(category):
-    # 1. Find all active units in this category
     equipment_list = frappe.get_all("Equipment", 
         filters={"equipment_catgory": category, "status": ["!=", "Retired"]},
         fields=["name", "status"])
@@ -286,8 +272,8 @@ def trigger_bulk_recall(category):
     rented_notified = 0
 
     for eq in equipment_list:
-        # Create 'Recall' Maintenance Schedule
-        maint = frappe.get_doc({
+        # Create  Maintenance Schedule for recall 
+        maint = frappe.get_doc({ 
             "doctype": "Maintenance Schedule",
             "equipment": eq.name,
             "maintenance_type": "Recall",
@@ -297,14 +283,13 @@ def trigger_bulk_recall(category):
         })
         maint.insert(ignore_permissions=True)
         processed += 1
-
-        # 2. Logic for Rented vs Available
+		# if rented sending mail 
         if eq.status == "Rented":
-            # Fetch customer details and send email
+            # Fetch customer details and sending email
             if send_recall_email(eq.name):
                 rented_notified += 1
         else:
-            # If it's available, move it to maintenance immediately
+            # If it's available move it to maintenance 
             frappe.db.set_value("Equipment", eq.name, "status", "Under Maintenance")
 
     return {
@@ -314,31 +299,23 @@ def trigger_bulk_recall(category):
     }
 
 def send_recall_email(equipment_id):
-    """Finds the customer for the rented equipment using the correct child table field."""
     
-    # 1. Search in 'RA Equipments' using 'equipment_id' (Adjusted fieldname)
     agreement_data = frappe.db.get_value("RA Equipments", 
         {"equipment_id": equipment_id, "docstatus": 1}, 
         ["parent"], as_dict=True)
 
-    # If it still returns None, check if the field is named 'equipment_list' or similar
     if not agreement_data:
-        # Fallback debug to see what fields actually exist if this fails
-        # frappe.log_error(f"Could not find RA for {equipment_id}", "Recall Error")
         return False
 
-    # 2. Get the Customer and their Email from the Parent Rental Agreement
     customer_info = frappe.db.get_value("Rental Agreement", agreement_data.parent, 
         ["customer"], as_dict=True)
 
     if not customer_info:
         return False
 
-    # 3. Get Customer's email address
     customer_email = frappe.db.get_value("Customer", customer_info.customer, "email_id")
 
     if customer_email:
-        # 4. Send the Email
         frappe.sendmail(
             recipients=[customer_email],
             subject=f"URGENT: Safety Recall for Equipment {equipment_id}",

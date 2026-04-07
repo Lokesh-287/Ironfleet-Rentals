@@ -5,7 +5,7 @@ frappe.ui.form.on("Rental Return", {
 
     refresh(frm) {
         if (frm.doc.total_amount && frm.doc.is_fully_paid != 1) {
-            ~frm.add_custom_button("Make Final Payment", () => {
+            frm.add_custom_button("Make Final Payment", () => {
                 let d = new frappe.ui.Dialog({
                     title: "Capture Payment",
                     fields: [

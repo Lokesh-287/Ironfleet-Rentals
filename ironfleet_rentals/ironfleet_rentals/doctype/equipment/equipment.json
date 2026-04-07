@@ -32,7 +32,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status ",
-   "options": "Available\nRented\nUnder Maintenance\nRetired"
+   "options": "\nAvailable\nRented\nUnder Maintenance\nRetired"
   },
   {
    "fieldname": "condition",
@@ -103,7 +103,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-02 18:58:27.750303",
+ "modified": "2026-04-06 10:36:58.507147",
  "modified_by": "Administrator",
  "module": "IronFleet_Rentals",
  "name": "Equipment",

@@ -47,10 +47,8 @@ class RentalAgreement(Document):
 			# Flatten result list
 			available_ids = [x[0] for x in available_ids]
 			found_physical = len(available_ids)
-			# 2. If physical stock is insufficient, check for a SUBMITTED Sourcing Document
 			if found_physical < required_qty:
 				needed_from_sourcing = required_qty - found_physical
-				# Check if a Sourcing Request exists for this RA and Category
 				sourced_qty = frappe.db.sql("""
 					SELECT SUM(si.qty) 
 					FROM `tabSourcing Items` si
@@ -59,7 +57,6 @@ class RentalAgreement(Document):
 					AND si.equipment_category = %s
 					AND ss.docstatus = 1
 				""", (self.name, category))[0][0] or 0
-				# If (Physical + Sourced) is still less than Required, Block Submission
 				
 				if (found_physical + sourced_qty) < required_qty:
 					frappe.throw(
